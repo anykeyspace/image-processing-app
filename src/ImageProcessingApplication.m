@@ -125,9 +125,7 @@ d = str2double(get(handles.edDensity, 'String'));
 image = handles.A;
 [m,n,p] = size(image);
 Anoise = zeros(m, n, p);
-for rgb = 1 : p
-    Anoise(:,:,rgb) = imnoise(image(:,:,rgb), 'salt & pepper', d); % Импульсный шум
-end
+Anoise = imnoise(image, 'salt & pepper', d); % Импульсный шум
 
 % ntsRatio = noiseToSignalRatio( handles.A, Anoise );
 % disp('Noise to signal ratio:')
@@ -180,13 +178,19 @@ figure, imshow(g)
 function btnMedian_Callback(hObject, eventdata, handles)
 maskSize = str2num(get(handles.edMaskSize, 'String'));
 f = handles.Anoise;
+[x,y,z] = size(f);
 m = maskSize;
 n = m;
+
 %g = ordfilt2(f, median(1 : m*n), ones(m, n));
 
 tic % Начало отсчета времени
-g = medfilt2(f, [m, n], 'symmetric');
+
+for rgb = 1 : z
+    g(:,:,rgb) = medfilt2(f(:,:,rgb), [m, n], 'symmetric');
+end
 figure, imshow(g)
+
 T = toc; % Конец отсчета
 
 disp('Filtration time (in seconds):')
